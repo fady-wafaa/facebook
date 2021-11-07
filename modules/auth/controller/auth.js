@@ -46,13 +46,13 @@ const GoogleLogin = async (req, res) => {
       idToken: tokenId,
       audience:process.env.OAuth
     });
-    console.log(payload);
+    // console.log(payload);
     if (payload.email_verified) {
       const user = await UserSchema.findOne({ googleId });
       
       if(user){
         //   const token = jwt.sign({_id:user._id,role:user.role})
-          const token = signToken({_id:user._id,role:user.role});
+          const token = signToken({_id:user._id,roles:user.roles});
           res.status(200).json({ message: 'success', token, });
       }else{
           const newUser = await UserSchema.create({username:payload.name,email:payload.email,confirmed:true,password:nanoid()}) 
@@ -126,9 +126,7 @@ const logIn = async (req, res) => {
     if (!user) {
       res.status(401).json({ message: 'email is aleardy exisst' });
     }
-    if (user.confirmed === false) {
-      res.status(401).json({ message: 'you have to confirm you email first' });
-    }
+
     const matchPassword = await compareing(password, user.password);
     if (!matchPassword) {
       res.status(401).json({ message: 'Invalid email or password' });
